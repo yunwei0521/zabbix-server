@@ -1,0 +1,5 @@
+---
+# defaults file for zabbix
+zabbix_DBName: zabbix
+zabbix_DBUser: zabbix
+zabbix_DBPassword: zabbix

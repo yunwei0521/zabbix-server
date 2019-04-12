@@ -1,0 +1,7 @@
+---
+# handlers file for zabbix
+- name: httpd service restart
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes

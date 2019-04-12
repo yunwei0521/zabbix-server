@@ -1,0 +1,7 @@
+#zabbix_server_ip: 192.168.61.161
+#database_ip_address: 192.168.61.161
+database_pass: rootroot
+database_allow: 192.168.%
+zabbix_DBName: zabbix
+zabbix_DBUser: zabbix
+zabbix_DBPassword: zabbix

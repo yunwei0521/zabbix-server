@@ -1,0 +1,23 @@
+---
+- name: mysql service started
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+- name: mariadb service started
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+- name: grant mysql root remote access 
+  mysql_user: name=root password={{ database_pass }} priv=*.*:ALL,GRANT host={{ item }} state=present
+  with_items:
+  - "{{ database_allow }}"
+  - "{{ ansible_nodename }}"
+  - localhost
+- name: grant mariadb root remote access
+  mysql_user: name=root password={{ database_pass }} priv=*.*:ALL,GRANT host={{ item }} state=present
+  with_items:
+  - "{{ database_allow }}"
+  - "{{ ansible_nodename }}"
+  - localhost

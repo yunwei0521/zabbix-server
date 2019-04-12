@@ -1,0 +1,12 @@
+---
+# tasks file for httpd
+- name: install httpd server
+  yum: name={{ item }} state=installed disablerepo=* enablerepo=chinadaas_base,chinadaas_updates
+  with_items:
+  - httpd
+  - httpd-tools
+- name: httpd service started
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes

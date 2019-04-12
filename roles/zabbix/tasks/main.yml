@@ -1,0 +1,57 @@
+---
+- name: install request rpms
+  yum: name={{ item }}  state=installed disablerepo=* enablerepo=chinadaas_base,chinadaas_updates,chinadaas_epel,chinadaas_zabbix
+  with_items:
+  - sed
+  - MySQL-python
+  - mariadb
+  - zabbix-server-mysql
+  - zabbix-web-mysql
+  - zabbix-get
+  - zabbix-web
+  notify:
+  - httpd service restart
+- name: create zabbix database
+  mysql_db:
+    login_user: root 
+    login_password: "{{ database_pass }}"
+    login_host: "{{ database_ip_address }}"
+    name: "{{ zabbix_DBName }}"
+    state: present
+- name: create zabbix database user
+  mysql_user:
+    login_user: root 
+    login_password: "{{ database_pass }}" 
+    login_host: "{{ database_ip_address }}"
+    name: "{{ zabbix_DBUser }}"
+    password: "{{ zabbix_DBPassword }}"
+    host: "{{ item }}"
+    priv: "{{ zabbix_DBName }}.*:ALL"
+    state: present
+  with_items:
+  - "{{ database_allow }}"
+  - "{{ ansible_nodename }}"
+- name: import zabbix database
+  mysql_db:
+    login_user: "{{ zabbix_DBUser }}"
+    login_password: "{{ zabbix_DBPassword }}"
+    login_host: "{{ database_ip_address }}"
+    name: "{{ zabbix_DBName }}"
+    state: import
+    target: /usr/share/doc/zabbix-server-mysql-3.0.2/create.sql.gz
+- name: config zabbix-server
+  template: src=zabbix_server.conf.j2 dest=/etc/zabbix/zabbix_server.conf
+- name: zabbix-server service started
+  service: name=zabbix-server state=started enabled=yes
+- name: config zabbix web
+  template: src=zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php
+- name: upload zabbix font
+  copy: src=simkai.ttf dest=/usr/share/fonts/dejavu/simkai.ttf
+- name: used new font for zabbix
+  file: src=/usr/share/fonts/dejavu/simkai.ttf dest=/etc/alternatives/zabbix-web-font state=link force=yes
+- name: enable chinese language for zabbix
+  script: chinese.sh
+- name: config php timezone
+  script: timezone.sh
+  notify:
+  - httpd service restart

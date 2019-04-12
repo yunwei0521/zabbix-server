@@ -1,0 +1,28 @@
+---
+- name: create database config
+  template: 
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+  tags:
+  - conf
+- name: install mysql database
+  yum: name={{ item }}  state=installed disablerepo=* enablerepo=chinadaas_base,chinadaas_updates
+  with_items:
+  - mysql-server
+  - mysql
+  - MySQL-python
+  notify:
+  - mysql service started
+  - grant mysql root remote access
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
+- name: install mariadb database
+  yum: name={{ item }}  state=installed disablerepo=* enablerepo=chinadaas_base,chinadaas_updates
+  with_items:
+  - mariadb-server
+  - mariadb
+  - MySQL-python
+  notify:
+  - mariadb service started
+  - grant mariadb root remote access
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
+- meta: flush_handlers

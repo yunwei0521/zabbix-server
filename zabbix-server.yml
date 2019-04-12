@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+- hosts: all
+  remote_user: root
+  vars_files:
+  - conf.yml
+  roles:
+  - role: yum
+  - role: mysql
+    when: inventory_hostname == database_ip_address
+  - role: zabbix
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7 and inventory_hostname == zabbix_server_ip
